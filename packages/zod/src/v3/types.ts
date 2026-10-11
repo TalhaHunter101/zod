@@ -2484,7 +2484,7 @@ export class ZodObject<
     const extraKeys: string[] = [];
 
     if (!(this._def.catchall instanceof ZodNever && this._def.unknownKeys === "strip")) {
-      for (const key in ctx.data) {
+      for (const key of util.objectKeys(ctx.data)) {
         if (!shapeKeys.includes(key)) {
           extraKeys.push(key);
         }

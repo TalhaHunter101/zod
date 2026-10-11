@@ -429,3 +429,24 @@ test("xor", () => {
     data: z.union([z.object({ name: z.string(), a: z.number() }), z.object({ name: z.string(), b: z.number() })]),
   });
 });
+
+test("strict() does not reject inherited prototype properties", () => {
+  const proto = { inheritedProp: "inherited" };
+  const input = Object.create(proto);
+  input.name = "John";
+
+  const schema = z.object({ name: z.string() }).strict();
+  expect(schema.safeParse(input).success).toBe(true);
+});
+
+test("passthrough() does not clone inherited prototype properties as own properties", () => {
+  const proto = { inheritedSecret: "secret" };
+  const input = Object.create(proto);
+  input.id = "123";
+
+  const schema = z.object({ id: z.string() }).passthrough();
+  const parsed = schema.parse(input);
+
+  expect(parsed.id).toBe("123");
+  expect(Object.prototype.hasOwnProperty.call(parsed, "inheritedSecret")).toBe(false);
+});
